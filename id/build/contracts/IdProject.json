@@ -9547,12 +9547,12 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0xCD914a446B0b8A250f66f5Ad4254770CC9781347",
-      "transactionHash": "0x8a1ff19505a374564c1e198e00afc574ed970bf33838e044f9965ab666bc654c"
+      "address": "0xE4f5015dbC4e6A80b7172B50d2feEB2a98297Ab8",
+      "transactionHash": "0xf8cd015c9d9efa54036fe96f4ce258fcabde4b3835fecaa2d127c4f3573be07d"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-01-02T03:42:12.272Z",
+  "updatedAt": "2025-01-08T05:23:30.099Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

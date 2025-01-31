@@ -16,7 +16,7 @@ contract IdProject {
 
     uint256 public blockCount;
 
-    //  ** 유저 관련 **
+    //**유저 관련**
     struct Set {
         address[] values;
         mapping (address => bool) is_in;
@@ -41,9 +41,10 @@ contract IdProject {
         return userList;
     }
 
-    // ** 블록 관련 **
-    //블록 생성
-    function insertInfo(string memory _nickName, string memory _gameName, string memory _serverName, string memory _className, string memory _remarks) public {////
+
+    //**블록 관련**
+    //블록 생성하는 함수
+    function insertInfo(string memory _nickName, string memory _gameName, string memory _serverName, string memory _className, string memory _remarks) public {
         require(bytes(_gameName).length > 0, "Game Name is required");
         require(bytes(_serverName).length > 0, "Server Name is required");
         require(bytes(_className).length > 0, "Class Name is required");
@@ -61,14 +62,13 @@ contract IdProject {
 
     }
 
-    //계정별 블록 넘버 모음 (배열) -->계정별 소유 블럭 함수 배열
+    //계정별 소유 블록 함수 배열
     function getIndexOf(address _address) public view returns(uint[] memory){
         return games[_address].blockId;
     }
 
-
-    //블록별 정보 출력
-    function getInfo(address _address, uint _blockId) public view returns (string memory, string memory, string memory, string memory, string memory, uint) {
+    //블록별 정보 출력하는 함수
+    function getInfo(address _address, uint _blockId) public view returns (string memory,string memory, string memory, string memory,string memory, uint) {
         return (
             games[_address].nickName,
             games[_address].gameName[_blockId],
@@ -79,7 +79,7 @@ contract IdProject {
         );
     }
     
-      //**검색 관련**
+    //**검색 관련**
     //키워드 검색
     function linearSearch(string memory _search) public view returns(string[] memory, address[] memory){
         uint resultCnt;
@@ -111,14 +111,4 @@ contract IdProject {
         return (finalUsers, finalUserAddresses);
    }
 
-/*
-
-    // 닉네임 반환 함수 추가
-    function getNickName(address _address) public view returns (string memory) {
-    return games[_address].nickName;
-    }
-*/
 }
-
-
-

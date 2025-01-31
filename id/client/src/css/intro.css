@@ -1,0 +1,89 @@
+.main-container-int {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+.main-img {
+  text-align: center;
+  width: 70%;
+  margin-top: 30px;
+}
+
+.main-img img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.tutorial-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.tutorial-content {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tutorial-content img {
+  max-width: 90%; 
+  max-height: 90%;
+  object-fit: contain; 
+}
+
+.btn-close {
+  position: absolute;
+  bottom: 50px;
+  right: 100px;
+  background-color: #6b6b6b;
+  color: #ffffff;
+  font-size: 30px;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  z-index: 10000;
+}
+
+.btn-tutorial, .btn-start {
+  width: 150px;
+  height: 50px;
+  background-size: cover;
+  background-position: center;
+  border: none;
+  background-color: #1f1f1f;
+}
+
+.btn-tutorial {
+  background-image: url('../../public/tuto_btn.png');
+  transition: 1s;
+}
+
+.btn-start {
+  background-image: url('../../public/start_btn.png');
+  transition: 1s;
+}
+
+.btn-tutorial:hover {
+  background-image: url('../../public/tuto_btn01.png');
+}
+
+.btn-start:hover {
+  background-image: url('../../public/start_btn01.png');
+}

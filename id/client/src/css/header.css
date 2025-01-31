@@ -1,0 +1,26 @@
+
+#logo{
+    font-weight: bold;
+    text-align: center;
+    margin-top: 20px;
+    flex-grow: 1; 
+    width: 150px;
+    height: auto;   
+}
+hr {
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin-top: 20px;
+}
+
+#header {
+    padding: 0;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: auto; 
+    margin: 0;
+    margin-bottom: 20px;
+}

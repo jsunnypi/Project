@@ -1,0 +1,14 @@
+footer {
+  color: white;
+  text-align: center;
+  padding: 2px;
+  margin-top: 5%;
+  position: relative;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+footer hr {
+  margin-top: 20px;
+  border-color: #f0ad4e;
+}

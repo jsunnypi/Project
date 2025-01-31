@@ -1,0 +1,63 @@
+html, body {
+  height: 100%;
+}
+.con-history {
+  flex: 1;
+  width: 80%;
+  height: 100vh;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border-bottom: 3px #ff82a8 double;
+  border-right: 3px #ff73d5 double;
+  border-top: 3px #ff82a8 double;
+  border-left: 3px #ff73d5 double;
+  border-radius: 10px;
+  text-align: center;
+  flex-direction: column;
+}
+  .his-con-table {
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 60vw;
+    }
+  .entry-date{
+    text-align: right;
+  }
+.his-title {
+  height: 30px;
+  text-align: left;
+}  
+  .entry-date {
+    text-align: right;
+    display: block;
+  }  
+
+  .his-data{
+    text-align: right !important; 
+    font-size: 15px;
+    padding: 8px;
+    height: auto;
+  }
+  textarea.show-comment{
+    padding: 10px; 
+    width: 100%;
+    height: 100px;
+    padding: 5px;
+    border: none;
+    resize: none;
+    background-color: #2b2a2a96;
+    color: #f1f1f1;
+    font-size: large;
+    border-radius: 5px;
+  }
+  p {
+    height: 70vh;
+    align-items: center;
+    font-size: 30px !important;
+    margin: 0; 
+  }
+  

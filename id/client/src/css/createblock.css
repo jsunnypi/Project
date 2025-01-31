@@ -1,0 +1,147 @@
+html,body{
+  background-color: #1f1f1f;
+  color: white;
+  font-size: 15px;
+}
+
+.app-wrapper {
+  display: flex;
+  flex-direction: column; 
+  min-height: 100vh;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.block-create {
+  border-radius: 5px;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+.con-title{
+  width : 10%;
+  align-items: center;
+}
+
+.con-text {
+  width: 200px;
+}
+
+.contents-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: transparent;
+  color: white;
+}
+
+table {
+  margin-left: auto;
+  margin-right: auto;
+  width: 80%;
+}
+
+.main-contents {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+textarea.comment-box {
+  background-color: #1f1f1f !important;
+  width: 100% !important;
+  padding: 10px;
+  margin: 8px 10px;
+  border-bottom: 3px #8f82ff double;
+  border-right: 3px #9aebff double;
+  border-top: 3px #8f82ff double;
+  border-left: 3px #9aebff double;
+  border-radius: 10px!important;
+  padding: 5px!important;
+  resize: none;
+  color: #f1f1f1;
+  font-size: 15px;
+}
+
+.btn-enter {
+  background-image: url(../../public/btn-enter.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: bottom;
+  width: 160px;
+  height: 110px;
+  margin-top: 100px;
+  margin-left: auto;
+  margin-right: auto;
+  transition: transform 0.2s ease;
+  border: none; 
+  display: block;
+  background-color: transparent;
+  color: white;
+}
+.btn-enter:active {
+  transform: translate(1px, 1px); /* 엔터치는 느낌 추가 */
+  background-color: transparent;
+}
+.input-group-text {
+  text-align: center;
+  background-color: #1f1f1f !important;
+  color: rgb(255, 255, 255) !important;
+  border-top: 3px #8f82ff double !important;
+  border-left: 3px #9aebff double !important;
+  border-bottom: none !important;
+  border-right: none !important;
+  border-radius: 10px !important;
+  margin-left: 10px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+input.form-control {
+  background-color: #1f1f1f !important;
+  border-top: none;
+  border-left: none;
+  border-right: 1px #fff solid;
+  border-bottom: 1px #fff solid;
+  color: #f1f1f1;
+  font-size: 15px;
+  border-radius: 5px;
+  height: 30px;
+}
+.button-container {
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+}
+::placeholder{
+  color: rgb(179, 179, 179) !important;
+  font-size: 15px;
+}
+
+@media (max-width: 768px) {
+  .input-group-text {
+    font-size: 12px;
+    padding: 4px 8px; 
+  }
+
+  .con-text {
+    width: 100%; 
+  }
+  
+  .block-create {
+    width: 90%; 
+  }
+
+  .btn-enter {
+    width: 130px; 
+    height: 90px;
+  }
+}

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../css/createblock.css";
+import Web3 from "web3"; 
 
 const CreateBlock = ({ contract, account, getInfo, blocks, setBlocks }) => {
   const [nickName, setNickName] = useState("");
@@ -7,7 +8,6 @@ const CreateBlock = ({ contract, account, getInfo, blocks, setBlocks }) => {
   const [serverName, setServerName] = useState("");
   const [className, setClassName] = useState("");
   const [remarks, setRemarks] = useState("");
-
 
   // 텍스트 영역 바이트 수를 체크하는 함수
   const CheckByte = (event) => {
@@ -27,17 +27,13 @@ const CreateBlock = ({ contract, account, getInfo, blocks, setBlocks }) => {
         totalByte += 1;
       }
       if (totalByte > maxByte) {
-        alert('최대 100Byte까지만 입력 가능합니다.');
+        alert("최대 100Byte까지만 입력 가능합니다.");
         event.target.value = text_val.substring(0, i); // 초과된 부분 자르기
         setRemarks(event.target.value.substring(0, i));
         return;
       }
     }
   };
-
-
-
-
 
   const insertInfo = async () => {
     console.log(nickName, gameName, serverName, className, remarks);
@@ -49,14 +45,7 @@ const CreateBlock = ({ contract, account, getInfo, blocks, setBlocks }) => {
       await contract.methods
         .insertInfo(nickName, gameName, serverName, className, remarks)
         .send({ from: account, gas: 3000000 });
-      /*
-        // WebSocket 서버와 연결하여 닉네임 전송
-        const ws = new WebSocket("ws://192.168.0.16:8001");
-        ws.onopen = () => {
-        ws.send(JSON.stringify({ type: "setUsername", username: nickName }));
-        ws.close(); // 작업 후 WebSocket 연결 종료
-        };
-*/
+
       // 새로 추가된 데이터를 blocks에 반영
       const newBlock = {
         id: blocks.length + 1, // 고유 ID
@@ -79,11 +68,9 @@ const CreateBlock = ({ contract, account, getInfo, blocks, setBlocks }) => {
       setRemarks("");
 
       alert("정보가 저장되었습니다!");
-      
 
-    // **페이지 새로고침 추가**
-    window.location.reload();
-    
+      // **페이지 새로고침 추가**
+      window.location.reload();
     } catch (error) {
       console.error("Error inserting info:", error);
     }
@@ -99,15 +86,11 @@ const CreateBlock = ({ contract, account, getInfo, blocks, setBlocks }) => {
                 <span className="input-group-text">닉네임</span>
               </td>
               <td className="con-text">
-                <input
+              <input
                   type="text"
                   className="form-control"
                   value={nickName}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setNickName(value);
-                    localStorage.setItem("savedNickName", value); // 입력할 때마다 저장
-                  }}
+                  onChange={(e) => setNickName(e.target.value)}
                 />
               </td>
               <td rowSpan="4">

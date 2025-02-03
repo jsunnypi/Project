@@ -1,10 +1,7 @@
-import React from 'react';
-import '../css/history.css';
-
-
+import React from "react";
+import "../css/history.css";
 
 export function History({ blocks }) {
-
   return (
     <div className="con-history">
       {blocks.length > 0 ? (
@@ -15,10 +12,12 @@ export function History({ blocks }) {
                 <tr className="his-title-date">
                   <td className="his-title">
                     <span className="his-title-data">
-                      {block.nickName}님의 {block.gameName} / {block.serverName} / {block.className} 접속 기록
+                      {block.nickName}님의 {block.gameName} / {block.serverName}{" "}
+                      / {block.className} 접속 기록
                     </span>
                   </td>
-                  <td className="entry-date">{block.date}</td> {/* 날짜는 그대로 출력 */}
+                  <td className="entry-date">{block.date}</td>{" "}
+                  {/* 날짜는 그대로 출력 */}
                 </tr>
                 <tr>
                   <td colSpan="2">
@@ -31,19 +30,15 @@ export function History({ blocks }) {
                     <hr />
                   </td>
                 </tr>
-                </tbody>
+              </tbody>
             </table>
-
           </div>
-
         ))
-       
       ) : (
         <p>No blocks available.</p> // 블록이 없을 경우 안내 메시지 표시
       )}
     </div>
   );
-  
 }
 
 export default History;

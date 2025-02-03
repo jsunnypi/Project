@@ -23,8 +23,9 @@
     border-left: none;
     outline: none;
     font-size: 16px;
-    background-color: #1f1f1f;
+    background-color: #1f1f1fe0;
     color: #f1f1f1;
+    border-radius: 7px;
   }
   
   .btn-search {
@@ -35,7 +36,7 @@
       background-size: cover;  
       background-position: center;  
       border: none; 
-      background-color: #1f1f1f;
+      background-color: transparent;
       color: #f1f1f1;
   }
 
@@ -43,7 +44,7 @@
     background-image: url(../../public/search_btn01.png);
   }
   
-  p {
+  .main-container-search p {
     color: #c5d0ff;
     font-size: 14px;
     text-align: center;

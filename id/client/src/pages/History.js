@@ -1,6 +1,8 @@
+// History.js
 import React from "react";
 import "../css/history.css";
 
+// History.js
 export function History({ blocks }) {
   return (
     <div className="con-history">
@@ -12,12 +14,15 @@ export function History({ blocks }) {
                 <tr className="his-title-date">
                   <td className="his-title">
                     <span className="his-title-data">
-                      {block.nickName}님의 {block.gameName} / {block.serverName}{" "}
-                      / {block.className} 접속 기록
+                      <span className="highlight">{block.gameName} : </span>
+                      <span className="highlight">
+                        {block.serverName}({block.className})
+                      </span>{" "}
+                      의
+                      <span className="highlight"> {block.nickName}</span> 님
                     </span>
                   </td>
-                  <td className="entry-date">{block.date}</td>{" "}
-                  {/* 날짜는 그대로 출력 */}
+                  <td className="entry-date">{block.date}</td>
                 </tr>
                 <tr>
                   <td colSpan="2">
@@ -27,7 +32,6 @@ export function History({ blocks }) {
                       className="show-comment"
                       value={block.remarks}
                     />
-                    <hr />
                   </td>
                 </tr>
               </tbody>
@@ -35,10 +39,11 @@ export function History({ blocks }) {
           </div>
         ))
       ) : (
-        <p>No blocks available.</p> // 블록이 없을 경우 안내 메시지 표시
+        <p> 생성된 블록이 없습니다. 블록을 생성해 주세요 </p>
       )}
     </div>
   );
 }
+
 
 export default History;

@@ -64,7 +64,7 @@ const Intro = () => {
       {showTutorial && (
         <div className="tutorial-overlay">
           <div className="tutorial-content">
-            <img src="/tutorial(1).png" alt="Tutorial" />
+            <img src="/tutorial.png" alt="Tutorial" />
             <button className="btn-close" onClick={handleTutorialClick}>X</button>
           </div>
         </div>

@@ -8,13 +8,14 @@ import "./App.css";
 import { Search } from "./pages/Search";
 import IdProject from "./IdProject.json";
 import CreateBlock from "./pages/CreateBlock";
+import Stats from "./pages/Stats";
 
 const App = () => {
   const [account, setAccount] = useState("");
   const [contract, setContract] = useState(null);
   const [blocks, setBlocks] = useState([]); // 블록 상태 관리
   const [selectedUser, setSelectedUser] = useState(null); // 선택된 사용자
-  const [searchedBlock, setSearchedBlocks] = useState([]);
+  const [searchedBlock, setSearchedBlocks] = useState([]); // 검색된 블록
   const [nickName, setNickName] = useState("");
 
   // 메타마스크 및 스마트 계약 초기화
@@ -38,9 +39,7 @@ const App = () => {
             );
 
             setContract(instance);
-
-            // 계약에서 직접 데이터 불러오기
-            fetchBlocks(instance, account);
+            fetchBlocks(instance, account); // 계약에서 직접 데이터 불러오기
           } else {
             console.error("MetaMask 계정을 찾을 수 없습니다.");
           }
@@ -56,6 +55,7 @@ const App = () => {
       }
     };
     initWeb3();
+    
     // 새로고침 시 로컬 스토리지에서 blocks 데이터 불러오기
     const savedBlocks = localStorage.getItem("blocks");
     if (savedBlocks) {
@@ -104,19 +104,22 @@ const App = () => {
           if (i + 1 === blockCount.length) setNickName(block[0]);
         }
 
-        setBlocks(fetchedBlockResults); // 블록 상태 업데이트
+        setBlocks(fetchedBlockResults.reverse()); // 블록 상태 업데이트
       }
     } catch (error) {
       console.error("블록 정보 불러오기 중 오류 발생:", error);
     }
   };
 
+  
   // 선택된 사용자 상태 업데이트
   const handleUserSelect = (user) => {
     setSelectedUser(user);
     fetchSearchedBlocks(user.userAddress);
   };
+  
 
+  // 사용자가 선택한 블록 정보 가져오기
   const fetchSearchedBlocks = async (account) => {
     try {
       if (contract && account) {
@@ -148,12 +151,19 @@ const App = () => {
           });
         }
 
-        setSearchedBlocks(fetchedBlockResults); // 블록 상태 업데이트
+        setSearchedBlocks(fetchedBlockResults.reverse()); // 블록 상태 업데이트
       }
     } catch (error) {
       console.error("블록 정보 불러오기 중 오류 발생:", error);
     }
   };
+
+  // 최근 유저 
+  const recentUserSelect = (address, nickName) => {
+    setSelectedUser({ address, nickName });
+    fetchSearchedBlocks(address);
+  };
+  
 
   // 사용자 선택 취소 (검색 화면으로 돌아가기)
   const handleBackToSearch = () => {
@@ -200,6 +210,9 @@ const App = () => {
       )}
       <Footer />
       <div className="button-container">
+        
+        <Stats onSelectUser={recentUserSelect} />
+          
         <ChatBTN nickName={nickName} />
         <HelpBTN />
       </div>

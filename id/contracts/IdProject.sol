@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 contract IdProject {
     struct Game {
         uint[] blockId;
-        string nickname;
+        mapping(uint256 => string) nickname;
         mapping(uint256 => string) gameName;
         mapping(uint256 => string) serverName;
         mapping(uint256 => string) className;
@@ -12,7 +12,7 @@ contract IdProject {
         mapping(uint256 => uint) date;
     }
 
-    mapping(address => Game) public games;
+    mapping(address => Game) games;
 
     uint256 public blockCount;
 
@@ -56,7 +56,7 @@ contract IdProject {
         add(msg.sender);
 
         games[msg.sender].blockId.push(blockCount);
-        games[msg.sender].nickname = _nickname;
+        games[msg.sender].nickname[blockCount] = _nickname;
         games[msg.sender].gameName[blockCount] = _gameName;
         games[msg.sender].serverName[blockCount] = _serverName;
         games[msg.sender].className[blockCount] = _className;
@@ -86,7 +86,7 @@ contract IdProject {
         )
     {
         return (
-            games[_address].nickname,
+            games[_address].nickname[_blockId],
             games[_address].gameName[_blockId],
             games[_address].serverName[_blockId],
             games[_address].className[_blockId],
@@ -96,9 +96,7 @@ contract IdProject {
     }
 
     //키워드 검색 --> 블럭아이디 배열뿐.
-    function linearSearch(
-        string memory _search
-    ) public view returns (string[] memory, address[] memory) {
+    function linearSearch(string memory _search) public view returns (string[] memory, address[] memory) {
         address[] memory user = getUser();
 
         // 결과 저장을 위한 동적 배열 생성
@@ -115,7 +113,7 @@ contract IdProject {
                     keccak256(bytes(games[user[i]].serverName[blocks[j]])) ==
                     keccak256(bytes(_search))
                 ) {
-                    tempUsers[cnt] = games[user[i]].nickname;
+                    tempUsers[cnt] = games[user[i]].nickname[blocks[j]];
                     tempAddresses[cnt] = user[i];
                     cnt++;
                     break; // 한 번 찾으면 중복 저장 방지
@@ -134,4 +132,84 @@ contract IdProject {
 
         return (users, addresses);
     }
+
+    // 통계 --> 1.누적 사용자 수 조회 
+    function getTotalUserCount() public view returns (uint) {
+        return userCnt;
+    }
+
+    // 통계 --> 2.누적 블록 수 조회 
+    function getTotalBlockCount() public view returns (uint) {
+        return blockCount;
+    } 
+
+    // 통계 --> 3. 최근 사용자 10명
+    // UserBlock 구조체 정의
+    struct UserBlock {
+        address user;
+        uint lastBlockTimestamp;
+    }
+
+    function getRecentUser() public view returns (string[] memory, address[] memory) {
+        uint maxCount = 10; // 최신 10명을 추출
+        address[] memory allUsers = getUser();
+        uint totalUsers = allUsers.length;
+
+        // 블록 생성 시간을 기준으로 사용자들의 데이터를 저장
+        UserBlock[] memory userBlocks = new UserBlock[](totalUsers); // UserBlock 배열을 미리 생성
+
+        for (uint i = 0; i < totalUsers; i++) {
+            uint[] memory blocks = getIndexOf(allUsers[i]);
+            uint latestBlockTimestamp = 0;
+
+            for (uint j = 0; j < blocks.length; j++) {
+                uint blockId = blocks[j];
+                uint timestamp = games[allUsers[i]].date[blockId];
+                if (timestamp > latestBlockTimestamp) {
+                    latestBlockTimestamp = timestamp;
+                }
+            }
+
+            userBlocks[i] = UserBlock(allUsers[i], latestBlockTimestamp);
+        }
+
+        // 최신 블록 생성자들을 정렬 (시간이 최신인 순서대로)
+        for (uint i = 0; i < totalUsers; i++) {
+            for (uint j = i + 1; j < totalUsers; j++) {
+                if (userBlocks[i].lastBlockTimestamp < userBlocks[j].lastBlockTimestamp) {
+                    UserBlock memory temp = userBlocks[i];
+                    userBlocks[i] = userBlocks[j];
+                    userBlocks[j] = temp;
+                }
+            }
+        }
+
+        // 최근 10명만 닉네임으로 반환
+        uint resultCount = totalUsers < maxCount ? totalUsers : maxCount;
+        string[] memory recentNicknames = new string[](resultCount);
+        address[] memory recentAddresses = new address[](resultCount);
+
+        for (uint i = 0; i < resultCount; i++) {
+            // 가장 최근의 블록 ID를 찾기
+            uint lastBlockId = 0;
+            uint latestTimestamp = 0;
+            
+            // 블록 ID 배열을 순회하면서 최신 블록을 찾는다
+            uint[] memory blocks = getIndexOf(userBlocks[i].user);
+            for (uint j = 0; j < blocks.length; j++) {
+                uint blockId = blocks[j];
+                uint timestamp = games[userBlocks[i].user].date[blockId];
+                if (timestamp > latestTimestamp) {
+                    latestTimestamp = timestamp;
+                    lastBlockId = blockId; // 최신 블록 ID를 기록
+                }
+            }
+            
+            // 최신 블록 ID를 기반으로 닉네임 가져오기
+            recentNicknames[i] = games[userBlocks[i].user].nickname[lastBlockId];
+            recentAddresses[i] = userBlocks[i].user;
+        }
+
+        return (recentNicknames, recentAddresses);
+        }
 }

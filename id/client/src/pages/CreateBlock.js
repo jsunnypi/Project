@@ -1,24 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../css/createblock.css";
-import Web3 from "web3"; 
+import Web3 from "web3";
 
-const CreateBlock = ({ contract, account, getInfo, blocks, setBlocks }) => {
+const CreateBlock = ({ contract, account, blocks, setBlocks }) => {
   const [nickName, setNickName] = useState("");
   const [gameName, setGameName] = useState("");
   const [serverName, setServerName] = useState("");
   const [className, setClassName] = useState("");
   const [remarks, setRemarks] = useState("");
 
+  // 가장 최근 블록 찾기 (현재 유저의 마지막 블록)
+  useEffect(() => {
+    if (blocks.length > 0) {
+      const lastBlock = blocks[0]; // blocks 배열에서 제일 최신 블록을 가져옵니다 (가장 최근 추가된 블록)
+      setNickName(lastBlock.nickName);  // 닉네임을 placeholder로 설정
+      setGameName(lastBlock.gameName);  // 게임명 placeholder
+      setServerName(lastBlock.serverName);  // 서버명 placeholder
+      setClassName(lastBlock.className);  // 클래스 placeholder
+    }
+  }, [blocks]);  // blocks가 변경될 때마다 실행
+
   // 텍스트 영역 바이트 수를 체크하는 함수
-  const CheckByte = (event) => {
-    const maxByte = 100; // 최대 100바이트
-    const text_val = event.target.value; // 입력한 문자
-    const text_len = text_val.length; // 입력한 문자 수
+  const CheckByte = (event, maxByte) => {
+    const text_val = event.target.value;
+    const text_len = text_val.length;
 
     let totalByte = 0;
     for (let i = 0; i < text_len; i++) {
       const each_char = text_val.charAt(i);
-      const uni_char = escape(each_char); // 유니코드 형식으로 변환
+      const uni_char = escape(each_char);
       if (uni_char.length > 4) {
         // 한글 : 2Byte
         totalByte += 2;
@@ -27,50 +37,51 @@ const CreateBlock = ({ contract, account, getInfo, blocks, setBlocks }) => {
         totalByte += 1;
       }
       if (totalByte > maxByte) {
-        alert("최대 100Byte까지만 입력 가능합니다.");
-        event.target.value = text_val.substring(0, i); // 초과된 부분 자르기
-        setRemarks(event.target.value.substring(0, i));
+        alert(`최대 ${maxByte}Byte까지만 입력 가능합니다.`);
+        event.target.value = text_val.substring(0, i);
         return;
       }
     }
   };
 
-  const insertInfo = async () => {
-    console.log(nickName, gameName, serverName, className, remarks);
+  const validateAndInsertInfo = async () => {
+    if (!gameName.trim() || !serverName.trim() || !className.trim()) {
+      alert("게임명, 서버명, 클래스의 입력은 필수입니다!!");
+      return;
+    }
+
+    const finalNickName = nickName.trim() === "" ? "*Unknown*" : nickName.trim();
+    const finalGameName = gameName.trim().replace(/\s/g, ""); 
+    const finalServerName = serverName.trim().replace(/\s/g, ""); 
+    const finalClassName = className.trim().replace(/\s/g, ""); 
+    const finalRemarks = remarks.trim() === "" ? "*내용없음*" : remarks;
+
     try {
-      // 닉네임 저장
-      localStorage.setItem("nickName", nickName);
-
-      // 스마트 계약 호출
+      const gasPrice = Web3.utils.toWei("20", "gwei");
       await contract.methods
-        .insertInfo(nickName, gameName, serverName, className, remarks)
-        .send({ from: account, gas: 3000000 });
+        .insertInfo(finalNickName, finalGameName, finalServerName, finalClassName, finalRemarks)
+        .send({ from: account, gas: 5000000, gasPrice });
 
-      // 새로 추가된 데이터를 blocks에 반영
       const newBlock = {
-        id: blocks.length + 1, // 고유 ID
-        nickName,
-        gameName,
-        serverName,
-        className,
-        remarks,
-        date: new Date().toLocaleString(), // 여기에 타임스탬프를 추가
+        id: blocks.length + 1,
+        nickName: finalNickName,
+        gameName: finalGameName,
+        serverName: finalServerName,
+        className: finalClassName,
+        remarks: finalRemarks,
+        date: new Date().toLocaleString(),
       };
 
-      // blocks 상태 업데이트
-      setBlocks([...blocks, newBlock]);
+      setBlocks([newBlock, ...blocks]);
 
-      // 입력 필드 초기화
       setNickName("");
       setGameName("");
       setServerName("");
       setClassName("");
       setRemarks("");
 
-      alert("정보가 저장되었습니다!");
-
-      // **페이지 새로고침 추가**
       window.location.reload();
+
     } catch (error) {
       console.error("Error inserting info:", error);
     }
@@ -86,32 +97,32 @@ const CreateBlock = ({ contract, account, getInfo, blocks, setBlocks }) => {
                 <span className="input-group-text">닉네임</span>
               </td>
               <td className="con-text">
-              <input
+                <input
                   type="text"
                   className="form-control"
                   value={nickName}
                   onChange={(e) => setNickName(e.target.value)}
+                  onKeyUp={(e) => CheckByte(e, 10)} 
                 />
               </td>
               <td rowSpan="4">
                 <span className="input-group-text">Note</span>
                 <textarea
                   className="comment-box"
+                  value={remarks}
                   rows="7"
                   cols="70"
-                  value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
-                  onKeyUp={CheckByte}
+                  onKeyUp={(e) => CheckByte(e, 100)} 
                   placeholder="100byte 제한"
                 />
               </td>
               <td rowSpan="4">
                 <div className="d-grid gap-2">
-                  <button
-                    className="btn btn-enter"
-                    type="button"
-                    onClick={insertInfo}
-                  ></button>
+                <button
+                  className="btn btn-enter"
+                  type="button"
+                  onClick={validateAndInsertInfo}/>
                 </div>
               </td>
             </tr>

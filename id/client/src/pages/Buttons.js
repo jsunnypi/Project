@@ -5,7 +5,7 @@ export function ChatBTN({nickName}) {
   //console.log("nickName!!!!", nickName);  // 값이 잘 전달되는지 확인
   return (
     <div className="flo-btn-chat">
-      <form action="http://192.168.0.90:8000" method="POST">
+      <form action="http://192.168.0.16:8000" method="POST">
         <input type="hidden" name="user" value={JSON.stringify(nickName)} />
         <button className="flo flo-chat" type="submit"></button>
       </form>

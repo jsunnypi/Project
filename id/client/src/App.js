@@ -17,7 +17,11 @@ const App = () => {
   const [selectedUser, setSelectedUser] = useState(null); // 선택된 사용자
   const [searchedBlock, setSearchedBlocks] = useState([]); // 검색된 블록
   const [nickName, setNickName] = useState("");
-
+  const [userTokenBalance, setUserTokenBalance] = useState(0); // 유저의 토큰 잔액 상태 관리
+  const [tokenBalance, setTokenBalance] = useState(0);
+  const [clickCount, setClickCount] = useState(0); // 클릭 횟수 추적
+  const [transactionInProgress, setTransactionInProgress] = useState(false); // 트랜잭션 진행 여부
+ 
   // 메타마스크 및 스마트 계약 초기화
   useEffect(() => {
     const initWeb3 = async () => {
@@ -39,7 +43,9 @@ const App = () => {
             );
 
             setContract(instance);
+
             fetchBlocks(instance, account); // 계약에서 직접 데이터 불러오기
+            fetchTokenBalance(instance, account); // 사용자 잔액 불러오기
           } else {
             console.error("MetaMask 계정을 찾을 수 없습니다.");
           }
@@ -112,6 +118,26 @@ const App = () => {
   };
 
   
+  // 사용자의 토큰 잔액 가져오기
+  const fetchTokenBalance = async (contract, account) => {
+    try {
+      if (contract && account) {
+        const balance = await contract.methods.getTokenBalance(account).call();
+        setUserTokenBalance(balance);
+      }
+    } catch (error) {
+      console.error("사용자 토큰 잔액 조회 중 오류 발생:", error);
+    }
+  };
+
+  // account나 contract가 변경될 때마다 토큰 잔액을 새로 조회
+  useEffect(() => {
+    if (account && contract) {
+      fetchTokenBalance();
+    }
+  }, [account, contract]);
+
+
   // 선택된 사용자 상태 업데이트
   const handleUserSelect = (user) => {
     setSelectedUser(user);
@@ -170,6 +196,70 @@ const App = () => {
     setSelectedUser(null);
   };
 
+// 채굴 버튼 클릭 시 사용자에게 토큰 전달
+const handleMine = async () => {
+  // 클릭 횟수 증가
+  setClickCount((prevCount) => {
+    const newCount = prevCount + 1;
+    return newCount;
+  });
+
+  // 클릭 횟수가 10번 이상이면 랜덤 효과 처리 및 채굴 시작
+  if (clickCount >= 10 && !transactionInProgress) {
+    setTransactionInProgress(true); // 트랜잭션 진행 중 상태로 설정
+
+    setTimeout(() => {
+      const randomEffect = Math.random();
+
+      // 30% 확률로 채굴 성공 -> 성공 시 채굴 트랜잭션 실행
+      if (randomEffect <= 0.3) {
+        executeMiningTransaction();
+          
+        document.querySelectorAll('.mining-button').forEach(function(element) {
+          element.classList.add('btn-break');
+          setTimeout(() => {
+            document.querySelectorAll('.mining-button').forEach(function(element) {
+              element.classList.remove('btn-break');});      
+          },5000)
+      });   
+      } else {
+        // 실패 시 트랜잭션 창이 뜨지 않음
+        setTransactionInProgress(false); // 트랜잭션 진행 상태를 리셋        
+      }
+    }
+    , 500); // 랜덤 효과 후 500ms 대기
+  }
+};
+
+// 실제 채굴 트랜잭션 실행
+const executeMiningTransaction = async () => {
+  if (contract && account) {
+    try {
+      const gasPrice = Web3.utils.toWei("20", "gwei");
+      const receipt = await contract.methods
+        .mine(account, Web3.utils.toWei("1000", "ether"))
+        .send({ from: account, gas: 5000000, gasPrice });
+
+      // 트랜잭션 영수증을 콘솔에 출력
+      console.log("트랜잭션 영수증:", receipt);
+
+      // 토큰 잔액 새로고침
+      fetchTokenBalance(contract, account);
+
+      // 트랜잭션 완료 후 클릭 횟수 초기화 및 상태 업데이트
+      setClickCount(0); // 클릭 횟수 초기화
+      setTransactionInProgress(false); // 트랜잭션 완료 후 상태 리셋
+    } catch (error) {
+      console.error("토큰 채굴 중 오류 발생:", error);
+      alert("토큰 채굴에 실패했습니다.");
+      setTransactionInProgress(false); // 트랜잭션 오류 시 상태 리셋
+    }
+  } else {
+    alert("계정을 연결할 수 없습니다.");
+    setTransactionInProgress(false); // 트랜잭션 오류 시 상태 리셋
+  }
+};
+
   return (
     <div className="main-container">
       <Header />
@@ -185,6 +275,26 @@ const App = () => {
         {" "}
         Welcome, {nickName}!{" "}
       </h1>
+      
+      <h3
+        style={{
+          textAlign: "center",
+          margin: 0,
+          padding: 0,
+          marginBottom: "15px",
+        }}
+      >
+        {/* 채굴 버튼 및 사용자 토큰 잔액 */}
+        <div className="mining-section">
+          <button
+            className="mining-button"
+            onClick={handleMine}
+          >
+          </button>
+          <p>보유한 토큰: {userTokenBalance} WID</p>
+        </div>
+      </h3>
+      
       {!selectedUser ? (
         // 검색 화면
         <Search contract={contract} onUserSelect={handleUserSelect} />
@@ -204,6 +314,8 @@ const App = () => {
             blocks={blocks}
             setBlocks={setBlocks}
             fetchBlocks={fetchBlocks}
+            tokenBalance={tokenBalance} 
+            setTokenBalance={setTokenBalance} // 필요 시 토큰 잔액을 업데이트 할 수 있도록
           />
           <History blocks={blocks} />
         </>
@@ -215,6 +327,7 @@ const App = () => {
           
         <ChatBTN nickName={nickName} />
         <HelpBTN />
+        
       </div>
     </div>
   );

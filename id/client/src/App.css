@@ -1,3 +1,4 @@
+
 body {
   background-image: url(/public/BG.png);
   background-size: contain; 
@@ -42,4 +43,50 @@ body {
 .user-history h2 {
   display: inline-block;
   margin-bottom: 5px;
+}
+.mining-section {
+  position: relative;  
+  width: 100%;  
+  height: 100%; 
+  top: 0;
+  left: 0;
+}
+
+.mining-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 150px;
+  height: 110px;
+  background-image: url('../public/mining1_1.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+}
+
+.btn-break {
+  background-image: url('../public/mining1_2.png') !important;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 150px;
+  height: 110px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+}
+
+.mining-button:focus {
+  outline: none;
+}
+
+.mining-section p {
+  position: fixed;
+  top: 130px;
+  left: 20px;
+  white-space: nowrap;
 }

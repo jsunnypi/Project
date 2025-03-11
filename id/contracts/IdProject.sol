@@ -2,6 +2,15 @@
 pragma solidity ^0.8.19;
 
 contract IdProject {
+    string public name = "WhatsID";
+    string public symbol = "WID";
+    uint8 public decimals = 18;
+    uint256 public totalSupply;
+    address public owner;
+
+    mapping(address => uint256) public balanceOf;
+    mapping(address => mapping(address => uint256)) public allowance;
+
     struct Game {
         uint[] blockId;
         mapping(uint256 => string) nickname;
@@ -23,6 +32,30 @@ contract IdProject {
 
     uint public userCnt;
     Set userSet;
+
+    // 채굴 관련 변수
+    mapping(address => uint256) public lastMineTime; // 마지막 채굴 시간 기록
+    uint256 public miningReward = 1 * 10 ** 3; // 채굴 시 지급되는 토큰 보상 (1 WID)
+
+    constructor() {
+        owner = msg.sender;
+        totalSupply = 100000000000 * (10 ** decimals); // 1000억 개 초기 발행
+        balanceOf[owner] = totalSupply; // 발행자는 모든 토큰을 보유
+    }
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    // 토큰 전송을 위한 함수 수정: 발행자만 전송 가능
+    function transfer(
+        address _to,
+        uint256 _value
+    ) public returns (bool success) {
+        require(msg.sender == owner, "Only owner can transfer tokens");
+        require(balanceOf[owner] >= _value, "Insufficient balance");
+        balanceOf[owner] -= _value;
+        balanceOf[_to] += _value;
+        return true;
+    }
 
     function add(address a) public {
         if (!userSet.is_in[a]) {
@@ -95,8 +128,11 @@ contract IdProject {
         );
     }
 
+    
     //키워드 검색 --> 블럭아이디 배열뿐.
-    function linearSearch(string memory _search) public view returns (string[] memory, address[] memory) {
+    function linearSearch(
+        string memory _search
+    ) public view returns (string[] memory, address[] memory) {
         address[] memory user = getUser();
 
         // 결과 저장을 위한 동적 배열 생성
@@ -133,15 +169,15 @@ contract IdProject {
         return (users, addresses);
     }
 
-    // 통계 --> 1.누적 사용자 수 조회 
+    // 통계 --> 1.누적 사용자 수 조회
     function getTotalUserCount() public view returns (uint) {
         return userCnt;
     }
 
-    // 통계 --> 2.누적 블록 수 조회 
+    // 통계 --> 2.누적 블록 수 조회
     function getTotalBlockCount() public view returns (uint) {
         return blockCount;
-    } 
+    }
 
     // 통계 --> 3. 최근 사용자 10명
     // UserBlock 구조체 정의
@@ -150,7 +186,11 @@ contract IdProject {
         uint lastBlockTimestamp;
     }
 
-    function getRecentUser() public view returns (string[] memory, address[] memory) {
+    function getRecentUser()
+        public
+        view
+        returns (string[] memory, address[] memory)
+    {
         uint maxCount = 10; // 최신 10명을 추출
         address[] memory allUsers = getUser();
         uint totalUsers = allUsers.length;
@@ -176,7 +216,10 @@ contract IdProject {
         // 최신 블록 생성자들을 정렬 (시간이 최신인 순서대로)
         for (uint i = 0; i < totalUsers; i++) {
             for (uint j = i + 1; j < totalUsers; j++) {
-                if (userBlocks[i].lastBlockTimestamp < userBlocks[j].lastBlockTimestamp) {
+                if (
+                    userBlocks[i].lastBlockTimestamp <
+                    userBlocks[j].lastBlockTimestamp
+                ) {
                     UserBlock memory temp = userBlocks[i];
                     userBlocks[i] = userBlocks[j];
                     userBlocks[j] = temp;
@@ -193,7 +236,7 @@ contract IdProject {
             // 가장 최근의 블록 ID를 찾기
             uint lastBlockId = 0;
             uint latestTimestamp = 0;
-            
+
             // 블록 ID 배열을 순회하면서 최신 블록을 찾는다
             uint[] memory blocks = getIndexOf(userBlocks[i].user);
             for (uint j = 0; j < blocks.length; j++) {
@@ -204,12 +247,49 @@ contract IdProject {
                     lastBlockId = blockId; // 최신 블록 ID를 기록
                 }
             }
-            
+
             // 최신 블록 ID를 기반으로 닉네임 가져오기
-            recentNicknames[i] = games[userBlocks[i].user].nickname[lastBlockId];
+            recentNicknames[i] = games[userBlocks[i].user].nickname[
+                lastBlockId
+            ];
             recentAddresses[i] = userBlocks[i].user;
         }
 
         return (recentNicknames, recentAddresses);
+    }
+
+    // 채굴 기능 추가: 사용자에게 토큰을 지급하는 기능
+    function mine() public {
+        require(msg.sender != owner, "Owner cannot mine tokens."); // 발행자는 채굴 불가
+        require(
+            block.timestamp >= lastMineTime[msg.sender] + 1,
+            "Must wait at least 1 second before mining again." // 1초 제한
+        );
+        require(
+            balanceOf[owner] >= miningReward,
+            "Insufficient tokens for mining reward"
+        ); // 발행자의 잔액 확인
+
+        uint256 randomValue = uint256(
+            keccak256(
+                abi.encodePacked(block.timestamp, msg.sender, block.prevrandao)
+            )
+        ) % 100;
+
+        if (randomValue < 10) {
+            // 10% 확률로 성공
+            balanceOf[owner] -= miningReward; // 발행자의 토큰 감소
+            balanceOf[msg.sender] += miningReward; // 채굴자의 토큰 증가
+            lastMineTime[msg.sender] = block.timestamp; // 마지막 채굴 시간 갱신
+            emit Transfer(owner, msg.sender, miningReward);
+        } else {
+            revert("Mining attempt failed. Try again.");
         }
+    }
+
+    // 사용자별 토큰 보유 개수 조회
+    function getTokenBalance(address _user) public view returns (uint256) {
+        return balanceOf[_user];
+    }
 }
+
